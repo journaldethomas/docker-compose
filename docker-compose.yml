@@ -1,0 +1,71 @@
+version: '3'
+services:
+  node-red:
+    container_name: node-red
+    image: nodered/node-red:latest
+    ports:
+      - "1880:1880"
+    volumes:
+      - node_red_data:/data
+    labels:
+      - "diun.enable=true"
+
+  homeassistant_dev:
+    container_name: homeassistant_dev
+    image: homeassistant/home-assistant:latest
+    volumes:
+      - /opt/docker/conteneurs/ha_dev:/config
+      - /etc/localtime:/etc/localtime
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: always
+    cap_add:
+      - net_admin
+    ports:
+      - 8124:8123
+    labels:
+
+      - "diun.enable=true"
+
+  homeassistant_prod:
+    container_name: homeassistant
+    image: homeassistant/home-assistant:2021.12.10
+    volumes:
+      - /opt/docker/conteneurs/ha_prod:/config
+      - /etc/localtime:/etc/localtime
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: always
+    network_mode: host
+    cap_add:
+      - net_admin
+    labels:
+      - "diun.enable=true"
+
+  hadockermon:
+    container_name: hadockermon
+    image: philhawthorne/ha-dockermon:latest
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /opt/docker/conteneurs/hadockermon/config:/config
+    ports:
+      - 8126:8126
+    labels:
+      - "diun.enable=true"
+
+  iobroker:
+    restart: always
+    image: buanet/iobroker:latest
+    container_name: iobroker
+    hostname: iobroker
+    ports:
+      - "8095:8081" # Main
+      - "8096:8082" # Web Server
+      - "8087:8087" # Rest API
+    volumes:
+      - /opt/docker/conteneurs/iobrokerdata:/opt/iobroker
+    labels:
+      - "diun.enable=true"
+
+volumes:
+  node_red_data:
+
